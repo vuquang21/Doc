@@ -2,6 +2,7 @@
 #include"Apartment.h"
 #include"LuxuryApartment.h"
 
+class business;
 class List {
 private:
     Business **p;

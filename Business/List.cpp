@@ -1,7 +1,12 @@
 #include"List.h"
+#include"Apartment.h"
+#include"LuxuryApartment.h"
 #include<iostream>
 using namespace std;
 
+class Business;
+class Apartment;
+class LuxuryApartment;
 List::List() {
     numberOfElment = 0;
     p = NULL;
