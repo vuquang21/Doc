@@ -1,0 +1,5 @@
+﻿  main.cpp
+  PS.cpp
+  Generating Code...
+D:\Documents\OOP\Lab5\Lab5\PS.cpp(22): warning C4172: returning address of local variable or temporary: obj
+  Lab5.vcxproj -> D:\Documents\OOP\Lab5\x64\Debug\Bai1.exe
