@@ -1,4 +1,4 @@
-#include<iostream>
+#include <iostream>
 using namespace std;
 
 bool Check(int *arr, int length, int number) 
@@ -77,7 +77,7 @@ int main()
 	 	cout << "-- Page Replacement algorithm --";
 	 	cout << "Input page frames: ";
 	 	cin >> frame;
-	 	Input(a, length, frame, );
+	 	Input(a, length, frame, array);
 	 	break;
 	 default: 
 	 	break;
