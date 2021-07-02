@@ -1,7 +1,8 @@
 #include <iostream>
+#define MAX 100
 using namespace std;
 
-bool Check(int *arr, int length, int number) 
+bool Check(int arr[], int length, int number) 
 {
     for (int i = 0; i < length; i++) 
     {
@@ -10,34 +11,37 @@ bool Check(int *arr, int length, int number)
     return false;
 }
 
-void Input(int **a, int &length, int frame, int array[]) 
+void InputSequence(int sequence[], int &length)
 {
-    a = new int *[frame];
-    for (int i = 0; i < frame; i++) 
+    for (int i = 0; i < length; i++)
     {
-        a[i] = new int[length];
+        cin >>> sequence[i];
     }
+}
 
+void CreateMatrix(int matrix[][MAX], int &length, int frame) 
+{
+    
     for (int i = 0; i < frame; i++) 
     {
         for (int j = 0; j < length; j++)
         {
-            a[i][j] = array[i];
+            matrix[i][j] = NULL;
         }
     }
 } 
 
-void FIFO(int **a, int length, int frame, int *arr)
+void FIFO(int matrix, int length, int frame, int sequence[], char asterick[])
 {
     int count = 0;
     for (int i = 0; i < frame; i++) 
     {
         for (int j = 0; j < frame; j++) 
         {
-            a[i][j] = arr[i]; 
+            matrix[i][j] = sequence[i]; 
         }
         count++;
-        cout << "*" << " ";
+        asterick[i] = '*';
     }
     int i = 0, j = 0;
     int current = 0;
@@ -45,14 +49,14 @@ void FIFO(int **a, int length, int frame, int *arr)
     {
 		while (i < frame) 
 		{
-			if (Check(arr, length, a[i][j]) == true)
+			if (Check(sequence, length, matrix[i][j]) == true)
 			{
 				i++;
 			}
-			a[current][i] = arr[j];
+			matrix[current][i] = sequence[j];
 			current++;
 			count++;
-			cout << "*" << " ";
+			asterick[j] = '*';
 		}
 		j++;
     }
@@ -60,7 +64,7 @@ void FIFO(int **a, int length, int frame, int *arr)
 
 int main() 
 {
-    int **a, *arr;
+    int matrix[MAX][MAX], sequence[MAX];
     int length;
     int frame;
     cout << "-- Page Replacement algorithm --";
@@ -75,9 +79,11 @@ int main()
 	 	break;
 	 case 2: 
 	 	cout << "-- Page Replacement algorithm --";
+        cout << "Input sequence: ";
+        cin >> length;
 	 	cout << "Input page frames: ";
 	 	cin >> frame;
-	 	Input(a, length, frame, array);
+	 	
 	 	break;
 	 default: 
 	 	break;
@@ -88,10 +94,11 @@ int main()
     cout << "3. LRU algorithm.";
     int choice2;
     cin >> choice2;
+    char asterisk[length];
     switch (choice2) 
     {
     case 1:
-    	FIFO(a, length, frame, arr);
+    	FIFO(matrix, length, frame, sequence, asterisk);
     	break;
     default: 
     	break; 
