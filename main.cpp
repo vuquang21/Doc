@@ -145,7 +145,7 @@ void LRU(int ref[], int n, int page)
 			total_page[i][j] = total_page[i][j - 1];
 			preArray[i] = total_page[i][j - 1];
 		}
-		///////
+		
 		if (Is_in_preArray(page, ref[j]) != -1) {
 			page_fault[j] = 0;
 		}
@@ -162,7 +162,7 @@ void LRU(int ref[], int n, int page)
 			page_fault[j] = 1;
 			number_page_fault++;
 		}
-		/////
+		
 	}
 	Print(total_page, n, page, ref);
 }
@@ -187,7 +187,7 @@ void OPT(int ref[], int n, int page)
 			total_page[i][j] = total_page[i][j - 1];
 			preArray[i] = total_page[i][j - 1];
 		}
-		///////
+		
 		if (Is_in_preArray(page, ref[j]) != -1) {
 			page_fault[j] = 0;
 		}
@@ -204,7 +204,7 @@ void OPT(int ref[], int n, int page)
 			page_fault[j] = 1;
 			number_page_fault++;
 		}
-		/////
+		
 	}
 	Print(total_page, n, page, ref);
 }
@@ -233,7 +233,7 @@ int main() {
 
 
 	cout << "--- Page Replacement algorithm ---" <<endl;
-	cout << "  Input page frames:              " <<endl;
+	cout << "Input page frames: " ;
 	cin >> page;
 
 
