@@ -1,154 +1,261 @@
+/*######################################
+# University of Information Technology #
+# IT007 Operating System               #
+# Vu Van Quang, 19522104               #
+# File: main.cpp                       #
+######################################*/
 #include <iostream>
-#define MAX 100
 using namespace std;
+static int preArray[10];
+static int page_fault[100];
+static int number_page_fault = 1;
 
-void CreateSequence(int sequence[], int &length) 
-{
-	for (int i = 0; i < length; i++) 
-	{
-		cin >> sequence[i];
+int Is_in_preArray(int page, int value) {
+	for (int i = 0; i < page; i++) {
+		if (value == preArray[i]) return i;
 	}
-
+	return -1;
 }
 
-void CreateMatrix(int matrix[][MAX], int length, int frame)
-{
-	for (int i = 0; i < frame; i++)
-	{
-		for (int j = 0; j < length; j++)
-		{
-			matrix[i][j] = '\0';
+
+int Farest_Element(int *ref, int pivot, int page) {
+	int min = pivot;
+	int vt;
+	for (int i = 0; i < page; i++) {
+		for (int j = pivot - 1; j >= 0; j--) {
+			if (preArray[i] == ref[j]) {
+				if (j < min) {
+					min = j;
+					vt = i;
+				}
+
+				break;
+			}
+
 		}
 	}
-}
-void CreateAsterisk(char asterisk[], int &length)
-{
-	for (int i = 0; i < length; i++)
-	{
-		asterisk[i] = '\0';
-	}
-}
-bool Check(int matrix[][MAX], int sequence[], int frame, int index)
-{
-	for (int i = 0; i < frame; i++)
-	{
-		if (matrix[i][--index] == sequence[index])
-			return true;
-	}
-	return false;
+	return vt;
 }
 
-void DisplayArray(char asterisk[], int length)
-{
-	for (int i = 0; i < length; i++)
-	{
-		cout << asterisk[i] << " ";
+int Farest_Element_Oppsite(int *ref, int pivot, int page, int n) {
+	int max = pivot;
+	int flag[10];
+	for (int i = 0; i < page; i++) {
+		flag[i] = false;
 	}
+	int vt = -1;
+	for (int i = 0; i < page; i++) {
+		for (int j = pivot + 1; j < n; j++) {
+			if (preArray[i] == ref[j]) {
+				if (j > max) {
+					max = j;
+					vt = i;
+				}
+				flag[i] = true;
+				break;
+			}
+
+		}
+	}
+
+	for (int i = 0; i < page; i++) {
+		if (flag[i] == false) return i;
+	}
+	return vt;
 }
-void DisplayMatrix(int matrix[][MAX], int length, int frame)
-{
-	for (int i = 0; i < frame; i++)
-	{
-		for (int j = 0; j < length; j++)
-		{
-			cout << matrix[i][j] << " ";
+
+void Print(int total_page[10][100], int n, int page, int ref[100]) {
+	// Print
+	for (int i = 0; i < n; i++) {
+		cout << ref[i] << " ";
+	}
+	cout << endl;
+	for (int i = 0; i < page; i++) {
+		for (int j = 0; j < n; j++) {
+			if (total_page[i][j] != -1) {
+				cout << total_page[i][j] << " ";
+			}
+			else {
+				cout << "  ";
+			}
+
 		}
 		cout << endl;
 	}
+	for (int i = 0; i < n; i++) {
+		if (page_fault[i] == 1) cout << "* ";
+		else {
+			cout << "  ";
+		}
+	}
+	cout << endl;
+	cout << "Number of Page Fault: " << number_page_fault << endl;
 }
 
-void FIFO(int matrix[][MAX], int sequence[], char asterisk[], int length, int frame)
+void FIFO(int ref[], int n, int page)
 {
-	int i = 0, j = 0;
-	int count = 0;
-	while (i < frame)
-	{
-		j = i;
-		while (j <= frame) 
-		{
-			matrix[i][j] = sequence[i];
-			j++;
+	bool IsFault;
+	int total_page[10][100];
+	int current_page = 0;
+	for (int i = 0; i < page; i++) {
+		if (i == 0) { total_page[i][0] = ref[0]; }
+		else {
+			total_page[i][0] = -1;
+		}
+	}
+	page_fault[0] = 1;
+
+	for (int j = 1; j < n; j++) {
+		for (int i = 0; i < page; i++) {
+			total_page[i][j] = total_page[i][j-1];
+			preArray[i] = total_page[i][j - 1];
+		}
+		if (Is_in_preArray(page, ref[j]) != -1) {
+			page_fault[j] = -1;
+		}
+		else {
+			current_page++;
+			if (current_page == page) current_page = 0;
+			total_page[current_page][j] = ref[j];
+			page_fault[j] = 1;
+			number_page_fault++;
 
 		}
-		asterisk[i] = '*';
-		++count;
-		i++;
 	}
-	i = 0, j = frame;
-	int current = 0;
-	int index = 0, tmp = 0;
-	while (j < length)
-	{
-		index = j; tmp = j;
-		while (i < frame)
-		{
-			if (Check(matrix, sequence, frame, index) == true)
-			{
-				--tmp;
-				i++;
-			}
-			else 
-			{
-				matrix[current][index] = sequence[index];
-				++count;
-				++current;
-				asterisk[index] = '*';				
-			}
-			//matrix[i][tmp] = matrix[i][index];
-			matrix[i][index] = matrix[i][tmp];
-			i++;
-		
-		}
-		j++;
-	}
-	DisplayMatrix(matrix, length, frame);
-	DisplayArray(asterisk, length);
-	cout << "\nNumber of Page Fault: " << count << endl;
+	Print(total_page, n, page, ref);
 }
 
-int main()
+void LRU(int ref[], int n, int page)
 {
-	int matrix[MAX][MAX], sequence[MAX];
-	int array[] = {1, 9, 5, 2, 2, 1, 0, 4, 0, 0, 7};
-	int length, frame;
-	char asterisk[MAX];
-	CreateAsterisk(asterisk, length);
-	cout << "--- Page Replacement algorithm ---\n";
-	cout << "1. Default referenced sequence.\n";
-	cout << "2. Manual input sequence.\n";
-	int choice;
-	cin >> choice;
-	switch (choice)
-	{
-		case 1: 
-			break;
-		case 2:
-			cout << "Input sequence: "; cin >> length;
-			CreateSequence(sequence, length);
-			cout << "Input page frame: "; cin >> frame;
-			CreateMatrix(matrix, length, frame);
-			break;
-		default: 
-			break;
+	bool IsFault;
+	int total_page[10][100];
+	int current_page = 0;
+	for (int i = 0; i < page; i++) {
+		if (i == 0) { total_page[i][0] = ref[0]; }
+		else {
+			total_page[i][0] = -1;
+		}
 	}
-	cout << "--- Page Replacement algorithm ---\n";
-	cout << "1. FIFO algorith.\n";
-	cout << "2. OPT algorithm.\n";
-	cout << "3. LRU algorithm.\n";
-	int choice2;
-	cin >> choice2;
-	switch (choice2)
+	page_fault[0] = 1;
+
+	for (int j = 1; j < n; j++)
 	{
-		case 1: 
-			if (choice == 1)
-			{
-				FIFO(matrix, array, asterisk, length, frame);
+
+		for (int i = 0; i < page; i++) {
+			total_page[i][j] = total_page[i][j - 1];
+			preArray[i] = total_page[i][j - 1];
+		}
+		///////
+		if (Is_in_preArray(page, ref[j]) != -1) {
+			page_fault[j] = 0;
+		}
+		else {
+			if (j < page) {
+				current_page++;
+				total_page[current_page][j] = ref[j];
 			}
-			else 
-				FIFO(matrix, sequence, asterisk, length, frame);
-			break;
-		default: 
-			break;
+			else {
+
+				int pivot = Farest_Element(ref, j, page);
+				total_page[pivot][j] = ref[j];
+			}
+			page_fault[j] = 1;
+			number_page_fault++;
+		}
+		/////
 	}
+	Print(total_page, n, page, ref);
+}
+
+void OPT(int ref[], int n, int page)
+{
+	bool IsFault;
+	int total_page[10][100];
+	int current_page = 0;
+	for (int i = 0; i < page; i++) {
+		if (i == 0) { total_page[i][0] = ref[0]; }
+		else {
+			total_page[i][0] = 0;
+		}
+	}
+	page_fault[0] = 1;
+
+	for (int j = 1; j < n; j++)
+	{
+
+		for (int i = 0; i < page; i++) {
+			total_page[i][j] = total_page[i][j - 1];
+			preArray[i] = total_page[i][j - 1];
+		}
+		///////
+		if (Is_in_preArray(page, ref[j]) != -1) {
+			page_fault[j] = 0;
+		}
+		else {
+			if (j < page) {
+				current_page++;
+				total_page[current_page][j] = ref[j];
+			}
+			else {
+
+				int pivot = Farest_Element_Oppsite(ref, j, page, n);
+				total_page[pivot][j] = ref[j];
+			}
+			page_fault[j] = 1;
+			number_page_fault++;
+		}
+		/////
+	}
+	Print(total_page, n, page, ref);
+}
+
+
+int main() {
+	int page; int temp;
+	int ref[11] = { 1, 9, 5, 2, 2, 1, 0, 4, 0, 0, 7 };;
+	int n = 11;
+	cout<<"--- Page Replacement algorithm ---   " << endl;
+	cout<<"1. Default referenced sequence       "<< endl;
+	cout<<"2. Manual input sequence             "<< endl;
+
+	cin >> temp;
+	switch (temp) {
+	case 1:
+
+		break;
+	case 2:
+		cout << "Input number of frame: ";
+		cin >> n;
+		for (int i = 0; i < n; i++) {
+			cin >> ref[i];
+		}
+	}
+
+
+	cout << "--- Page Replacement algorithm ---" <<endl;
+	cout << "  Input page frames:              " <<endl;
+	cin >> page;
+
+
+	cout << "--- Select algorithm ---" << endl;
+	cout << "1. FIFO algorithm       "<< endl;
+	cout << "2. LRU algorithm        "<<endl;
+	cout << "3. OPT algorithm        " << endl;
+
+	cin >> temp;
+	cout << "--- Page Replacement algorithm--- " << endl;
+	switch (temp) {
+	case 1:
+		FIFO(ref, n, page);
+		break;
+	case 2:
+		LRU(ref, n, page);
+		break;
+	case 3:
+		OPT(ref, n, page);
+		break;
+	}
+
+	system("pause");
 	return 0;
 }
